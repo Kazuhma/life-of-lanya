@@ -1,0 +1,32 @@
+{
+  "title": "Life of Lanya",
+  "subtitle": "Volume I: This Is Lanya",
+
+  "chapters": [
+    {
+      "number": 1,
+      "title": "This Is Lanya",
+      "pages": 3
+    }
+  ],
+
+  "artwork": [
+    {
+      "src": "assets/covers/cover.jpg",
+      "title": "Cover — Key Art",
+      "featured": true
+    },
+    {
+      "src": "assets/pages/chapter-01/001.jpg",
+      "title": "Page 1 — Morning"
+    },
+    {
+      "src": "assets/pages/chapter-01/002.jpg",
+      "title": "Page 2 — Getting Ready"
+    },
+    {
+      "src": "assets/pages/chapter-01/003.jpg",
+      "title": "Page 3 — The Commute"
+    }
+  ]
+}

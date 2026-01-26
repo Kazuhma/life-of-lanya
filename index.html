@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Life of Lanya</title>
+  <meta name="description" content="Life of Lanya — A graphic novel following Lanya's journey through life in New York." />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Life of Lanya" />
+  <meta property="og:description" content="A graphic novel following Lanya's journey through life in New York." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="assets/covers/cover.jpg" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <!-- Ambient grain / paper texture -->
+  <div class="grain" aria-hidden="true"></div>
+
+  <header class="topbar" data-topbar>
+    <a class="brand" href="#/" aria-label="Life of Lanya Home">LIFE OF LANYA</a>
+    <nav class="topnav" aria-label="Primary">
+      <a href="#/read" data-nav="read">Read</a>
+      <a href="#/art" data-nav="art">Concept Art</a>
+      <a href="#/updates" data-nav="updates">Updates</a>
+    </nav>
+  </header>
+
+  <main id="app">
+    <!-- HERO (Landing) -->
+    <section class="view view-hero is-active" data-view="home" aria-label="Home">
+      <div class="hero-wrap">
+        <div class="hero-title">
+          <h1>LIFE OF LANYA</h1>
+          <p class="subtitle">Volume I: This Is Lanya</p>
+        </div>
+
+        <figure class="hero-figure" aria-label="Lanya illustration">
+          <img src="assets/covers/cover.jpg" alt="Life of Lanya cover artwork featuring Lanya" class="hero-img" />
+        </figure>
+
+        <nav class="bottomnav" aria-label="Primary actions">
+          <a class="bottomlink" href="#/read" data-nav="read">READ</a>
+          <span class="dot" aria-hidden="true">·</span>
+          <a class="bottomlink" href="#/art" data-nav="art">CONCEPT ART</a>
+          <span class="dot" aria-hidden="true">·</span>
+          <a class="bottomlink" href="#/updates" data-nav="updates">UPDATES</a>
+        </nav>
+      </div>
+    </section>
+
+    <!-- READ -->
+    <section class="view" data-view="read" aria-label="Read Life of Lanya">
+      <div class="pagewrap">
+        <header class="sectionhead">
+          <h2>Read</h2>
+          <p>Select a chapter to begin reading.</p>
+        </header>
+
+        <!-- Chapter selector -->
+        <nav class="chapter-nav" id="chapterNav" aria-label="Chapters">
+          <!-- Populated by JS from chapters.json -->
+        </nav>
+
+        <!-- Comic reader -->
+        <article class="reader" id="reader" aria-label="Comic pages">
+          <!-- Populated by JS -->
+        </article>
+
+        <footer class="sectionfoot">
+          <a href="#/" class="textlink">Back to home</a>
+        </footer>
+      </div>
+    </section>
+
+    <!-- CONCEPT ART -->
+    <section class="view" data-view="art" aria-label="Concept Artwork">
+      <div class="pagewrap">
+        <header class="sectionhead">
+          <h2>Concept Art</h2>
+          <p>Behind-the-scenes artwork and sketches.</p>
+        </header>
+
+        <div class="gallery" id="gallery" aria-label="Artwork gallery">
+          <!-- Populated by JS from chapters.json -->
+        </div>
+
+        <footer class="sectionfoot">
+          <a href="#/" class="textlink">Back to home</a>
+        </footer>
+      </div>
+    </section>
+
+    <!-- UPDATES -->
+    <section class="view" data-view="updates" aria-label="Updates">
+      <div class="pagewrap pagewrap--narrow">
+        <header class="sectionhead">
+          <h2>Updates</h2>
+          <p>Development log and announcements.</p>
+        </header>
+
+        <div class="updates" role="list">
+          <div class="month" role="listitem">
+            <h3>January 2026</h3>
+            <ul>
+              <li><span class="date">Jan 27</span> Website launched with Chapter 1.</li>
+              <li><span class="date">Jan 17</span> Visual style finalized.</li>
+              <li><span class="date">Jan 11</span> Cover artwork completed.</li>
+            </ul>
+          </div>
+
+          <div class="month" role="listitem">
+            <h3>Coming Soon</h3>
+            <ul>
+              <li><span class="date">TBD</span> Chapter 2 pages.</li>
+              <li><span class="date">TBD</span> Character bio page.</li>
+            </ul>
+          </div>
+        </div>
+
+        <footer class="sectionfoot">
+          <a href="#/" class="textlink">Back to home</a>
+        </footer>
+      </div>
+    </section>
+  </main>
+
+  <!-- Lightbox -->
+  <dialog class="lightbox" data-lightbox-dialog>
+    <button class="lightbox-close" data-lightbox-close aria-label="Close">&times;</button>
+    <img class="lightbox-img" data-lightbox-img alt="" />
+    <p class="lightbox-cap" data-lightbox-cap></p>
+  </dialog>
+
+  <script src="script.js"></script>
+</body>
+</html>
