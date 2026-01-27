@@ -326,16 +326,19 @@ body {
   padding: 0;
   border: none;
   background: rgba(10,10,10,.96);
+}
+
+.reader-dialog:not([open]) {
+  display: none;
+}
+
+.reader-dialog[open] {
   display: flex;
   flex-direction: column;
 }
 
 .reader-dialog::backdrop {
   background: transparent;
-}
-
-.reader-dialog[open] {
-  display: flex;
 }
 
 .reader-header {

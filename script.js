@@ -181,9 +181,23 @@
     }
   });
 
-  readerClose?.addEventListener('click', closeReader);
-  readerPrev?.addEventListener('click', goToPrevPage);
-  readerNext?.addEventListener('click', goToNextPage);
+  readerClose?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    closeReader();
+  });
+
+  readerPrev?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    goToPrevPage();
+  });
+
+  readerNext?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    goToNextPage();
+  });
 
   // Click on image to advance
   readerImg?.addEventListener('click', (e) => {
