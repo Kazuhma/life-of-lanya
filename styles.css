@@ -36,7 +36,7 @@ body {
 }
 
 /* ============================================
-   TOP BAR
+   TOP BAR (always visible)
    ============================================ */
 .topbar {
   position: fixed;
@@ -50,14 +50,6 @@ body {
   padding: 22px var(--pad);
   gap: 16px;
   background: linear-gradient(to bottom, rgba(246,243,238,.92), rgba(246,243,238,.72), rgba(246,243,238,0));
-  transition: opacity .25s ease, transform .25s ease;
-  opacity: 0;
-  transform: translateY(-6px);
-}
-
-.topbar.is-visible {
-  opacity: 1;
-  transform: translateY(0);
 }
 
 .brand {
@@ -105,100 +97,136 @@ body {
 .view.is-active { display: block; }
 
 /* ============================================
-   HERO
+   HOME (Landing with album rail)
    ============================================ */
-.view-hero {
-  height: 100vh;
+.view-home {
+  min-height: 100vh;
   display: block;
 }
 
-.hero-wrap {
+.home-wrap {
   position: relative;
-  height: 100vh;
   max-width: var(--max);
   margin: 0 auto;
-  padding: 56px var(--pad);
+  padding: 92px var(--pad) 56px var(--pad);
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+  gap: clamp(22px, 4vw, 56px);
+  align-items: start;
 }
 
-.hero-title {
+/* Oversized right-side hero background */
+.hero-bg {
+  position: fixed;
+  top: -8vh;
+  right: -18vw;
+  width: min(900px, 80vw);
+  height: min(1100px, 120vh);
+  background: url("assets/hero.jpg") no-repeat right top / contain;
+  opacity: 0.14;
+  filter: grayscale(1) contrast(1.2);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Keep actual content above hero bg */
+.album-rail,
+.home-copy {
   position: relative;
-  z-index: 2;
-  max-width: 520px;
-  opacity: 0;
-  transform: translateY(8px);
-  animation: fadeUp .55s ease forwards;
-  animation-delay: .12s;
+  z-index: 1;
 }
 
-.hero-title h1 {
+.album-rail {
+  position: sticky;
+  top: 92px;
+  align-self: start;
+  padding-right: 10px;
+  border-right: 1px solid var(--hairline);
+}
+
+.rail-title {
+  font-size: 11px;
+  letter-spacing: .18em;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+.volume-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Re-skin volume cards for narrow rail */
+.volume-rail .volume-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  border: none;
+  box-shadow: none;
+  transition: transform .15s ease, opacity .15s ease;
+}
+
+.volume-rail .volume-card:hover {
+  transform: translateX(2px);
+}
+
+.volume-rail .volume-card img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border: 1px solid var(--hairline);
+}
+
+.volume-rail .volume-info {
+  padding: 10px 2px 0 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.volume-rail .volume-label {
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.volume-rail .volume-title {
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.volume-rail .volume-pages {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.home-h1 {
   font-family: var(--serif);
   font-weight: 500;
   margin: 0;
-  font-size: 72px;
+  font-size: clamp(44px, 6vw, 84px);
   line-height: .95;
   letter-spacing: .04em;
 }
 
-.subtitle {
-  margin: 10px 0 0 0;
-  font-family: var(--serif);
-  font-size: 22px;
-  letter-spacing: .02em;
+.home-sub {
+  margin: 14px 0 0 0;
+  max-width: 46ch;
   color: var(--muted);
+  font-size: 16px;
+  line-height: 1.65;
 }
 
-.hero-figure {
-  position: absolute;
-  right: clamp(-80px, -4vw, -22px);
-  bottom: -5vh;
-  width: min(680px, 54vw);
-  margin: 0;
-  z-index: 1;
-  opacity: 0;
-  transform: translateY(10px);
-  animation: fadeUp .45s ease forwards;
-  animation-delay: 0s;
-}
-
-.hero-img {
-  width: 100%;
-  height: auto;
-  display: block;
-  border-radius: 0;
-  filter: saturate(.98) contrast(1.02);
-}
-
-.bottomnav {
-  position: absolute;
-  left: 50%;
-  bottom: 40px;
-  transform: translateX(-50%);
+.home-hint {
+  margin-top: 22px;
   display: flex;
   align-items: center;
-  gap: 14px;
-  z-index: 3;
-  opacity: 0;
-  animation: fadeIn .55s ease forwards;
-  animation-delay: .22s;
-}
-
-.bottomlink {
-  text-decoration: none;
-  color: rgba(23,23,23,.72);
-  font-size: 14px;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  padding: 10px 6px;
-  transition: color .2s ease, opacity .2s ease;
-}
-
-.bottomlink:hover {
-  color: var(--ink);
-}
-
-.bottomlink--primary {
-  color: var(--ink);
-  font-weight: 500;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 13px;
 }
 
 .dot {
@@ -250,6 +278,7 @@ body {
   color: var(--muted);
   border-bottom: 1px solid transparent;
   padding-bottom: 2px;
+  transition: color .2s ease, border-color .2s ease;
 }
 
 .textlink:hover {
@@ -262,59 +291,6 @@ body {
   text-align: center;
   color: var(--muted);
   border: 1px dashed var(--hairline);
-}
-
-/* ============================================
-   VOLUME GRID (Read page)
-   ============================================ */
-.volume-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
-}
-
-.volume-card {
-  display: block;
-  text-decoration: none;
-  color: inherit;
-  border: 1px solid var(--hairline);
-  transition: border-color .2s ease, box-shadow .2s ease;
-}
-
-.volume-card:hover {
-  border-color: var(--ink);
-  box-shadow: 0 4px 20px rgba(0,0,0,.06);
-}
-
-.volume-card img {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-.volume-info {
-  padding: 16px 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.volume-label {
-  font-size: 11px;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.volume-title {
-  font-family: var(--serif);
-  font-size: 20px;
-  font-weight: 500;
-}
-
-.volume-pages {
-  font-size: 13px;
-  color: var(--muted);
 }
 
 /* ============================================
@@ -484,42 +460,6 @@ body {
 }
 
 /* ============================================
-   UPDATES
-   ============================================ */
-.month {
-  margin-bottom: 34px;
-}
-
-.month h3 {
-  font-family: var(--serif);
-  font-weight: 500;
-  font-size: 22px;
-  margin: 0 0 10px 0;
-}
-
-.month ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  border-left: 1px solid var(--hairline);
-}
-
-.month li {
-  padding: 10px 0 10px 14px;
-  line-height: 1.6;
-  color: var(--ink);
-}
-
-.date {
-  display: inline-block;
-  min-width: 64px;
-  color: var(--muted);
-  font-size: 12px;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-}
-
-/* ============================================
    CONCEPT ART LIGHTBOX
    ============================================ */
 .lightbox {
@@ -579,14 +519,49 @@ body {
 @media (max-width: 1023px) {
   :root { --pad: 32px; }
 
-  .hero-title h1 { font-size: 54px; }
-  .subtitle { font-size: 18px; }
-  .hero-figure { width: min(520px, 64vw); right: -18px; bottom: -6vh; }
   .pagewrap { padding: 110px var(--pad) 64px var(--pad); }
 
   .reader-nav { width: 50px; height: 70px; font-size: 30px; }
   .reader-nav--prev { left: 10px; }
   .reader-nav--next { right: 10px; }
+}
+
+@media (max-width: 840px) {
+  .home-wrap {
+    grid-template-columns: 1fr;
+    padding-top: 86px;
+  }
+
+  .album-rail {
+    position: relative;
+    top: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--hairline);
+    padding-right: 0;
+    padding-bottom: 14px;
+    margin-bottom: 14px;
+  }
+
+  .volume-rail {
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    gap: 16px;
+  }
+
+  .volume-rail .volume-card {
+    min-width: 160px;
+    flex-shrink: 0;
+  }
+
+  .hero-bg {
+    right: -40vw;
+    opacity: 0.10;
+  }
+
+  .home-hint {
+    flex-wrap: wrap;
+  }
 }
 
 @media (max-width: 767px) {
@@ -596,25 +571,7 @@ body {
   .topnav { gap: 14px; }
   .topnav a { font-size: 11px; }
 
-  .hero-wrap { padding: 40px var(--pad); }
-  .hero-title { max-width: unset; }
-  .hero-title h1 { font-size: 44px; }
-  .subtitle { font-size: 16px; }
-
-  .hero-figure {
-    position: absolute;
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
-    width: min(420px, 92vw);
-    bottom: -10vh;
-  }
-
-  .bottomnav { bottom: 22px; gap: 10px; }
-  .bottomlink { font-size: 13px; padding: 10px 4px; }
-
   .gallery { grid-template-columns: 1fr; }
-  .volume-grid { grid-template-columns: 1fr; }
 
   .reader-header { padding: 12px 16px; }
   .reader-title { font-size: 15px; }
@@ -624,4 +581,8 @@ body {
   .reader-nav { width: 44px; height: 60px; font-size: 26px; }
   .reader-nav--prev { left: 6px; }
   .reader-nav--next { right: 6px; }
+
+  .volume-rail .volume-card {
+    min-width: 140px;
+  }
 }

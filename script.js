@@ -29,24 +29,13 @@
     }));
   }
 
-  function loadProgress() {
-    try {
-      return JSON.parse(localStorage.getItem(PROGRESS_KEY) || 'null');
-    } catch {
-      return null;
-    }
-  }
-
   // ============================================
   // DOM ELEMENTS
   // ============================================
   const views = Array.from(document.querySelectorAll('[data-view]'));
-  const topbar = document.querySelector('[data-topbar]');
   const navLinks = Array.from(document.querySelectorAll('[data-nav]'));
   const volumeGrid = document.getElementById('volumeGrid');
   const conceptGallery = document.getElementById('conceptGallery');
-  const continueReading = document.querySelector('[data-continue-reading]');
-  const continueDot = document.querySelector('[data-continue-dot]');
 
   // Reader (lightbox-style)
   const readerDialog = document.querySelector('[data-reader-dialog]');
@@ -73,77 +62,49 @@
   // ============================================
   // ROUTING
   // ============================================
-  function parseRoute() {
-    const raw = (location.hash || '#/').replace(/^#\//, '').trim();
-    const parts = raw ? raw.split('/').filter(Boolean) : [];
-    const [root, a, b] = parts;
-
-    // home
-    if (!root) return { view: 'home' };
-
-    // read library OR reader deep link
-    if (root === 'read') {
-      const vol = a ? parseInt(a, 10) : null;
-      const page = b ? parseInt(b, 10) : null;
-      return { view: 'read', vol, page };
-    }
-
-    if (root === 'concept-art') return { view: 'concept-art' };
-    if (root === 'updates') return { view: 'updates' };
-
-    return { view: 'home' };
-  }
-
   function setActive(viewName) {
     views.forEach(v => v.classList.toggle('is-active', v.dataset.view === viewName));
     navLinks.forEach(a => a.classList.toggle('is-active', a.dataset.nav === viewName));
 
-    // Topbar shows on subpages
     if (viewName === 'home') {
-      topbar.classList.remove('is-visible');
-      updateContinueReading();
-    } else {
-      topbar.classList.add('is-visible');
-      window.scrollTo({ top: 0, behavior: 'auto' });
-    }
-
-    // Load content for view
-    if (viewName === 'read') {
       renderVolumeGrid();
     } else if (viewName === 'concept-art') {
       renderConceptGallery();
+      window.scrollTo({ top: 0, behavior: 'auto' });
     }
   }
 
   function route() {
-    const r = parseRoute();
-    setActive(r.view);
+    const raw = (location.hash || '#/').replace(/^#\//, '').trim();
+    const parts = raw ? raw.split('/').filter(Boolean) : [];
+    const [root, a, b] = parts;
 
-    // Deep link opens reader
-    if (r.view === 'read' && r.vol && r.page) {
-      openReader(r.vol, r.page, { syncUrl: false });
+    // Home
+    if (!root) {
+      setActive('home');
+      return;
     }
+
+    // Concept art mode
+    if (root === 'concept-art') {
+      setActive('concept-art');
+      return;
+    }
+
+    // Reading deep link: #/read/:vol/:page
+    if (root === 'read') {
+      setActive('home'); // Reader is a modal over home
+      const vol = a ? parseInt(a, 10) : null;
+      const page = b ? parseInt(b, 10) : 1;
+      if (vol) openReader(vol, page, { syncUrl: false });
+      return;
+    }
+
+    setActive('home');
   }
 
   // ============================================
-  // CONTINUE READING (Home page)
-  // ============================================
-  function updateContinueReading() {
-    if (!continueReading) return;
-
-    const progress = loadProgress();
-    if (progress && progress.volume && progress.page) {
-      continueReading.href = `#/read/${progress.volume}/${progress.page}`;
-      continueReading.style.display = '';
-      if (continueDot) continueDot.style.display = '';
-    } else {
-      continueReading.style.display = 'none';
-      if (continueDot) continueDot.style.display = 'none';
-    }
-  }
-
-  // ============================================
-  // VOLUME GRID (Read page entry points)
+  // VOLUME GRID (Album rail on home)
   // ============================================
   function renderVolumeGrid() {
     if (!siteData || !volumeGrid) return;
@@ -151,7 +112,7 @@
     const volumes = siteData.volumes || [];
 
     if (volumes.length === 0) {
-      volumeGrid.innerHTML = '<p class="empty-state">No volumes available yet.</p>';
+      volumeGrid.innerHTML = '<p class="empty-state">No albums yet.</p>';
       return;
     }
 
@@ -237,7 +198,7 @@
     currentVolume = null;
     currentPage = 1;
     totalPages = 0;
-    setHashSilently('#/read');
+    setHashSilently('#/');
   }
 
   // Reader event listeners

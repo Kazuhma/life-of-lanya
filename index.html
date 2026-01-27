@@ -27,53 +27,36 @@
   <header class="topbar" data-topbar>
     <a class="brand" href="#/" aria-label="Life of Lanya Home">LIFE OF LANYA</a>
     <nav class="topnav" aria-label="Primary">
-      <a href="#/read" data-nav="read">Read</a>
       <a href="#/concept-art" data-nav="concept-art">Concept Art</a>
-      <a href="#/updates" data-nav="updates">Updates</a>
     </nav>
   </header>
 
   <main id="app">
-    <!-- HERO (Landing) -->
-    <section class="view view-hero is-active" data-view="home" aria-label="Home">
-      <div class="hero-wrap">
-        <div class="hero-title">
-          <h1>LIFE OF LANYA</h1>
-          <p class="subtitle">Volume I: This Is Lanya</p>
+    <!-- HOME (Landing with album rail) -->
+    <section class="view view-home is-active" data-view="home" aria-label="Home">
+      <!-- Oversized decorative hero background -->
+      <div class="hero-bg" aria-hidden="true"></div>
+
+      <div class="home-wrap">
+        <!-- Left rail: albums (volumes) -->
+        <aside class="album-rail" aria-label="Albums">
+          <div class="rail-title">ALBUMS</div>
+          <div class="volume-rail" id="volumeGrid">
+            <!-- Populated by JS from data.json -->
+          </div>
+        </aside>
+
+        <!-- Main copy -->
+        <div class="home-copy">
+          <h1 class="home-h1">LIFE OF LANYA</h1>
+          <p class="home-sub">A graphic novel about ambition, New York mornings, and the parts you don't say out loud.</p>
+
+          <div class="home-hint">
+            <span>Pick an album to start reading.</span>
+            <span class="dot" aria-hidden="true">·</span>
+            <a class="textlink" href="#/concept-art" data-nav="concept-art">Or browse concept art</a>
+          </div>
         </div>
-
-        <figure class="hero-figure" aria-label="Lanya illustration">
-          <img src="assets/hero.jpg" alt="Life of Lanya key artwork featuring Lanya" class="hero-img" />
-        </figure>
-
-        <nav class="bottomnav" aria-label="Primary actions">
-          <a class="bottomlink bottomlink--primary" href="#/read/1/1" data-continue-reading style="display:none">CONTINUE READING</a>
-          <span class="dot" aria-hidden="true" data-continue-dot style="display:none">·</span>
-          <a class="bottomlink" href="#/read" data-nav="read">READ</a>
-          <span class="dot" aria-hidden="true">·</span>
-          <a class="bottomlink" href="#/concept-art" data-nav="concept-art">CONCEPT ART</a>
-          <span class="dot" aria-hidden="true">·</span>
-          <a class="bottomlink" href="#/updates" data-nav="updates">UPDATES</a>
-        </nav>
-      </div>
-    </section>
-
-    <!-- READ -->
-    <section class="view" data-view="read" aria-label="Read Life of Lanya">
-      <div class="pagewrap">
-        <header class="sectionhead">
-          <h2>Read</h2>
-          <p>Click the cover to start reading Volume I.</p>
-        </header>
-
-        <!-- Volume cover / entry point -->
-        <div class="volume-grid" id="volumeGrid">
-          <!-- Populated by JS from data.json -->
-        </div>
-
-        <footer class="sectionfoot">
-          <a href="#/" class="textlink">Back to home</a>
-        </footer>
       </div>
     </section>
 
@@ -87,39 +70,6 @@
 
         <div class="gallery" id="conceptGallery" aria-label="Concept art gallery">
           <!-- Populated by JS from data.json -->
-        </div>
-
-        <footer class="sectionfoot">
-          <a href="#/" class="textlink">Back to home</a>
-        </footer>
-      </div>
-    </section>
-
-    <!-- UPDATES -->
-    <section class="view" data-view="updates" aria-label="Updates">
-      <div class="pagewrap pagewrap--narrow">
-        <header class="sectionhead">
-          <h2>Updates</h2>
-          <p>Development log and announcements.</p>
-        </header>
-
-        <div class="updates" role="list">
-          <div class="month" role="listitem">
-            <h3>January 2026</h3>
-            <ul>
-              <li><span class="date">Jan 27</span> Website launched with Volume 1.</li>
-              <li><span class="date">Jan 17</span> Visual style finalized.</li>
-              <li><span class="date">Jan 11</span> Cover artwork completed.</li>
-            </ul>
-          </div>
-
-          <div class="month" role="listitem">
-            <h3>Coming Soon</h3>
-            <ul>
-              <li><span class="date">TBD</span> More pages for Volume 1.</li>
-              <li><span class="date">TBD</span> Character bio page.</li>
-            </ul>
-          </div>
         </div>
 
         <footer class="sectionfoot">
@@ -145,7 +95,7 @@
 
   <!-- Concept Art Lightbox -->
   <dialog class="lightbox" data-lightbox-dialog>
-    <button class="lightbox-close" data-lightbox-close aria-label="Close">&times;</button>
+    <button class="lightbox-close" data-lightbox-close aria-label="Close" type="button">&times;</button>
     <img class="lightbox-img" data-lightbox-img alt="" />
     <p class="lightbox-cap" data-lightbox-cap></p>
   </dialog>
