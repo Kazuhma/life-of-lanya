@@ -15,7 +15,7 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -26,78 +26,84 @@
 
   <header class="topbar" data-topbar>
     <a class="brand" href="#/" aria-label="Life of Lanya Home">LIFE OF LANYA</a>
-    <nav class="topnav" aria-label="Primary">
-      <a href="#/concept-art" data-nav="concept-art">Concept Art</a>
-    </nav>
   </header>
 
   <main id="app">
-    <!-- HOME (Landing with album rail) -->
-    <section class="view view-home is-active" data-view="home" aria-label="Home">
+    <!-- LANDING PAGE -->
+    <section class="view view-landing is-active" data-view="home" aria-label="Home">
       <!-- Oversized decorative hero background -->
       <div class="hero-bg" aria-hidden="true"></div>
 
-      <div class="home-wrap">
-        <!-- Left rail: albums (volumes) -->
-        <aside class="album-rail" aria-label="Albums">
-          <div class="rail-title">ALBUMS</div>
-          <div class="volume-rail" id="volumeGrid">
-            <!-- Populated by JS from data.json -->
-          </div>
-        </aside>
-
-        <!-- Main copy -->
-        <div class="home-copy">
-          <h1 class="home-h1">LIFE OF LANYA</h1>
-          <p class="home-sub">A graphic novel about ambition, New York mornings, and the parts you don't say out loud.</p>
-
-          <div class="home-hint">
-            <span>Pick an album to start reading.</span>
-            <span class="dot" aria-hidden="true">·</span>
-            <a class="textlink" href="#/concept-art" data-nav="concept-art">Or browse concept art</a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- CONCEPT ART -->
-    <section class="view" data-view="concept-art" aria-label="Concept Artwork">
-      <div class="pagewrap">
-        <header class="sectionhead">
-          <h2>Concept Art</h2>
-          <p>Behind-the-scenes artwork and sketches.</p>
-        </header>
-
-        <div class="gallery" id="conceptGallery" aria-label="Concept art gallery">
-          <!-- Populated by JS from data.json -->
+      <div class="landing-wrap">
+        <!-- Title block -->
+        <div class="landing-header">
+          <h1 class="landing-h1">LIFE OF LANYA</h1>
+          <p class="landing-sub">A graphic novel about ambition, New York mornings, and the parts you don't say out loud.</p>
         </div>
 
-        <footer class="sectionfoot">
-          <a href="#/" class="textlink">Back to home</a>
-        </footer>
+        <!-- Albums (primary CTA) -->
+        <section class="landing-section" aria-label="Albums">
+          <div class="section-label">ALBUMS</div>
+          <div class="album-grid" id="albumGrid">
+            <!-- Populated by JS -->
+          </div>
+        </section>
+
+        <!-- Concept Art (secondary CTA) -->
+        <section class="landing-section" aria-label="Concept Art">
+          <div class="section-label">CONCEPT ART</div>
+          <div class="concept-grid" id="conceptGrid">
+            <!-- Populated by JS -->
+          </div>
+        </section>
       </div>
     </section>
   </main>
 
-  <!-- Comic Reader (Lightbox-style) -->
+  <!-- Comic Reader Modal -->
   <dialog class="reader-dialog" data-reader-dialog>
-    <div class="reader-header">
-      <span class="reader-title" data-reader-title></span>
-      <span class="reader-counter" data-reader-counter></span>
-      <button class="reader-close" data-reader-close aria-label="Close reader" type="button">&times;</button>
+    <!-- Cover mode (Page 00) -->
+    <div class="reader-cover" data-reader-cover>
+      <div class="cover-bg" data-cover-bg></div>
+      <div class="cover-overlay"></div>
+      <div class="cover-content">
+        <span class="cover-label" data-cover-label>VOLUME I</span>
+        <h2 class="cover-title" data-cover-title>THIS IS LANYA</h2>
+        <p class="cover-subtitle" data-cover-subtitle></p>
+        <button class="cover-cta" data-cover-start type="button">START READING →</button>
+        <button class="cover-back" data-cover-back type="button">Back</button>
+      </div>
     </div>
-    <div class="reader-viewport">
-      <button class="reader-nav reader-nav--prev" data-reader-prev aria-label="Previous page" type="button">&#8249;</button>
-      <img class="reader-page" data-reader-img alt="" />
-      <button class="reader-nav reader-nav--next" data-reader-next aria-label="Next page" type="button">&#8250;</button>
+
+    <!-- Reading mode (Page 01+) -->
+    <div class="reader-content" data-reader-content>
+      <div class="reader-header">
+        <button class="reader-close" data-reader-close aria-label="Close reader" type="button">&times;</button>
+        <span class="reader-counter" data-reader-counter></span>
+      </div>
+      <div class="reader-viewport">
+        <button class="reader-nav reader-nav--prev" data-reader-prev aria-label="Previous page" type="button">&#8249;</button>
+        <img class="reader-page" data-reader-img alt="" />
+        <button class="reader-nav reader-nav--next" data-reader-next aria-label="Next page" type="button">&#8250;</button>
+      </div>
     </div>
   </dialog>
 
-  <!-- Concept Art Lightbox -->
-  <dialog class="lightbox" data-lightbox-dialog>
-    <button class="lightbox-close" data-lightbox-close aria-label="Close" type="button">&times;</button>
-    <img class="lightbox-img" data-lightbox-img alt="" />
-    <p class="lightbox-cap" data-lightbox-cap></p>
+  <!-- Concept Art Modal -->
+  <dialog class="concept-dialog" data-concept-dialog>
+    <div class="concept-header">
+      <button class="concept-close" data-concept-close aria-label="Close" type="button">&times;</button>
+      <span class="concept-counter" data-concept-counter></span>
+    </div>
+    <div class="concept-viewport">
+      <button class="concept-nav concept-nav--prev" data-concept-prev aria-label="Previous artwork" type="button">&#8249;</button>
+      <img class="concept-img" data-concept-img alt="" />
+      <button class="concept-nav concept-nav--next" data-concept-next aria-label="Next artwork" type="button">&#8250;</button>
+    </div>
+    <div class="concept-caption" data-concept-caption>
+      <p class="concept-title" data-concept-title></p>
+      <p class="concept-note" data-concept-note></p>
+    </div>
   </dialog>
 
   <script src="script.js"></script>

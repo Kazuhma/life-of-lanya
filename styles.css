@@ -33,10 +33,11 @@ body {
   mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
   background-size: 220px 220px;
+  z-index: 1000;
 }
 
 /* ============================================
-   TOP BAR (always visible)
+   TOP BAR
    ============================================ */
 .topbar {
   position: fixed;
@@ -60,35 +61,6 @@ body {
   font-weight: 500;
 }
 
-.topnav {
-  display: flex;
-  gap: 22px;
-  align-items: center;
-}
-
-.topnav a {
-  text-decoration: none;
-  color: var(--muted);
-  font-size: 12px;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  padding: 10px 2px;
-  border-bottom: 1px solid transparent;
-  transition: color .2s ease, border-color .2s ease, opacity .2s ease;
-  opacity: .85;
-}
-
-.topnav a:hover {
-  color: var(--ink);
-  opacity: 1;
-}
-
-.topnav a.is-active {
-  color: var(--ink);
-  border-color: var(--hairline);
-  opacity: 1;
-}
-
 /* ============================================
    VIEWS
    ============================================ */
@@ -97,22 +69,18 @@ body {
 .view.is-active { display: block; }
 
 /* ============================================
-   HOME (Landing with album rail)
+   LANDING PAGE
    ============================================ */
-.view-home {
+.view-landing {
   min-height: 100vh;
-  display: block;
 }
 
-.home-wrap {
+.landing-wrap {
   position: relative;
   max-width: var(--max);
   margin: 0 auto;
-  padding: 92px var(--pad) 56px var(--pad);
-  display: grid;
-  grid-template-columns: 210px minmax(0, 1fr);
-  gap: clamp(22px, 4vw, 56px);
-  align-items: start;
+  padding: 100px var(--pad) 80px var(--pad);
+  z-index: 1;
 }
 
 /* Oversized right-side hero background */
@@ -123,87 +91,17 @@ body {
   width: min(900px, 80vw);
   height: min(1100px, 120vh);
   background: url("assets/hero.jpg") no-repeat right top / contain;
-  opacity: 0.14;
+  opacity: 0.12;
   filter: grayscale(1) contrast(1.2);
   pointer-events: none;
   z-index: 0;
 }
 
-/* Keep actual content above hero bg */
-.album-rail,
-.home-copy {
-  position: relative;
-  z-index: 1;
+.landing-header {
+  margin-bottom: 48px;
 }
 
-.album-rail {
-  position: sticky;
-  top: 92px;
-  align-self: start;
-  padding-right: 10px;
-  border-right: 1px solid var(--hairline);
-}
-
-.rail-title {
-  font-size: 11px;
-  letter-spacing: .18em;
-  color: var(--muted);
-  margin-bottom: 14px;
-}
-
-.volume-rail {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-/* Re-skin volume cards for narrow rail */
-.volume-rail .volume-card {
-  display: block;
-  text-decoration: none;
-  color: inherit;
-  border: none;
-  box-shadow: none;
-  transition: transform .15s ease, opacity .15s ease;
-}
-
-.volume-rail .volume-card:hover {
-  transform: translateX(2px);
-}
-
-.volume-rail .volume-card img {
-  width: 100%;
-  height: auto;
-  display: block;
-  border: 1px solid var(--hairline);
-}
-
-.volume-rail .volume-info {
-  padding: 10px 2px 0 2px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.volume-rail .volume-label {
-  font-size: 10px;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.volume-rail .volume-title {
-  font-family: var(--serif);
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.volume-rail .volume-pages {
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.home-h1 {
+.landing-h1 {
   font-family: var(--serif);
   font-weight: 500;
   margin: 0;
@@ -212,7 +110,7 @@ body {
   letter-spacing: .04em;
 }
 
-.home-sub {
+.landing-sub {
   margin: 14px 0 0 0;
   max-width: 46ch;
   color: var(--muted);
@@ -220,81 +118,102 @@ body {
   line-height: 1.65;
 }
 
-.home-hint {
-  margin-top: 22px;
+.landing-section {
+  margin-bottom: 48px;
+}
+
+.section-label {
+  font-size: 11px;
+  letter-spacing: .18em;
+  color: var(--muted);
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+
+/* Album grid */
+.album-grid {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  color: var(--muted);
-  font-size: 13px;
+  gap: 24px;
+  flex-wrap: wrap;
 }
 
-.dot {
-  color: rgba(23,23,23,.35);
-}
-
-/* ============================================
-   SUBPAGES
-   ============================================ */
-.pagewrap {
-  max-width: var(--max);
-  margin: 0 auto;
-  padding: 120px var(--pad) 72px var(--pad);
-}
-
-.pagewrap--narrow {
-  max-width: 720px;
-}
-
-.sectionhead {
-  border-top: 1px solid var(--hairline);
-  padding-top: 18px;
-  margin-bottom: 28px;
-}
-
-.sectionhead h2 {
-  font-family: var(--serif);
-  font-weight: 500;
-  font-size: 44px;
-  margin: 0;
-  letter-spacing: .02em;
-}
-
-.sectionhead p {
-  margin: 10px 0 0 0;
-  color: var(--muted);
-  max-width: 56ch;
-  line-height: 1.6;
-}
-
-.sectionfoot {
-  margin-top: 44px;
-  border-top: 1px solid var(--hairline);
-  padding-top: 18px;
-}
-
-.textlink {
+.album-card {
+  display: block;
   text-decoration: none;
-  color: var(--muted);
-  border-bottom: 1px solid transparent;
-  padding-bottom: 2px;
-  transition: color .2s ease, border-color .2s ease;
+  color: inherit;
+  width: 220px;
+  transition: transform .15s ease;
 }
 
-.textlink:hover {
-  color: var(--ink);
-  border-color: var(--hairline);
+.album-card:hover {
+  transform: translateY(-2px);
+}
+
+.album-card img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border: 1px solid var(--hairline);
+}
+
+.album-info {
+  padding: 12px 2px 0 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.album-label {
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.album-title {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.album-pages {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* Concept art grid (thumbnails) */
+.concept-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+.concept-thumb {
+  display: block;
+  cursor: pointer;
+  transition: transform .15s ease, opacity .15s ease;
+}
+
+.concept-thumb:hover {
+  transform: scale(1.02);
+}
+
+.concept-thumb img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border: 1px solid var(--hairline);
 }
 
 .empty-state {
-  padding: 60px 20px;
+  padding: 40px 20px;
   text-align: center;
   color: var(--muted);
-  border: 1px dashed var(--hairline);
+  font-size: 14px;
 }
 
 /* ============================================
-   COMIC READER (Lightbox-style dialog)
+   READER DIALOG
    ============================================ */
 .reader-dialog {
   position: fixed;
@@ -306,7 +225,7 @@ body {
   margin: 0;
   padding: 0;
   border: none;
-  background: rgba(10,10,10,.96);
+  background: transparent;
 }
 
 .reader-dialog:not([open]) {
@@ -314,12 +233,132 @@ body {
 }
 
 .reader-dialog[open] {
-  display: flex;
-  flex-direction: column;
+  display: block;
 }
 
 .reader-dialog::backdrop {
   background: transparent;
+}
+
+/* Cover mode (Page 00) */
+.reader-cover {
+  display: none;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.reader-cover.is-active {
+  display: block;
+}
+
+.cover-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+}
+
+.cover-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,.7) 0%,
+    rgba(0,0,0,.4) 40%,
+    rgba(0,0,0,.2) 100%
+  );
+}
+
+.cover-content {
+  position: absolute;
+  left: 50%;
+  top: 58%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  max-width: 720px;
+  width: 90%;
+  color: rgba(255,255,255,.95);
+}
+
+.cover-label {
+  display: block;
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: .32em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.7);
+  margin-bottom: 12px;
+}
+
+.cover-title {
+  font-family: var(--serif);
+  font-size: clamp(42px, 5.4vw, 72px);
+  font-weight: 500;
+  letter-spacing: .06em;
+  line-height: 1.05;
+  margin: 0 0 18px 0;
+}
+
+.cover-subtitle {
+  font-family: var(--serif);
+  font-size: 15px;
+  font-style: italic;
+  color: rgba(255,255,255,.6);
+  margin: 0 0 40px 0;
+}
+
+.cover-subtitle:empty {
+  display: none;
+}
+
+.cover-cta {
+  display: inline-block;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  padding: 14px 26px;
+  border: 1px solid rgba(255,255,255,.4);
+  background: transparent;
+  color: rgba(255,255,255,.95);
+  cursor: pointer;
+  transition: background .2s ease, color .2s ease, border-color .2s ease;
+}
+
+.cover-cta:hover {
+  background: rgba(255,255,255,.95);
+  color: var(--ink);
+  border-color: transparent;
+}
+
+.cover-back {
+  display: block;
+  margin: 24px auto 0;
+  font-family: var(--sans);
+  font-size: 13px;
+  color: rgba(255,255,255,.5);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color .2s ease;
+}
+
+.cover-back:hover {
+  color: rgba(255,255,255,.8);
+}
+
+/* Reading mode (Page 01+) */
+.reader-content {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: rgba(10,10,10,.96);
+  flex-direction: column;
+}
+
+.reader-content.is-active {
+  display: flex;
 }
 
 .reader-header {
@@ -330,13 +369,6 @@ body {
   background: rgba(0,0,0,.4);
   color: rgba(255,255,255,.9);
   flex-shrink: 0;
-}
-
-.reader-title {
-  font-family: var(--serif);
-  font-size: 18px;
-  font-weight: 500;
-  letter-spacing: .02em;
 }
 
 .reader-counter {
@@ -377,6 +409,12 @@ body {
   object-fit: contain;
   cursor: pointer;
   user-select: none;
+  opacity: 0;
+  transition: opacity .15s ease;
+}
+
+.reader-page.is-loaded {
+  opacity: 1;
 }
 
 .reader-nav {
@@ -415,91 +453,156 @@ body {
 }
 
 /* ============================================
-   GALLERY (Concept Art)
+   CONCEPT ART MODAL
    ============================================ */
-.gallery {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
-}
-
-.tile {
-  position: relative;
-  display: block;
-  text-decoration: none;
-  color: inherit;
-}
-
-.tile img {
+.concept-dialog {
+  position: fixed;
+  inset: 0;
   width: 100%;
-  height: auto;
-  display: block;
-}
-
-.tile .cap {
-  position: absolute;
-  left: 12px;
-  bottom: 10px;
-  font-size: 12px;
-  letter-spacing: .06em;
-  color: rgba(23,23,23,0);
-  background: rgba(246,243,238,0);
-  padding: 8px 10px;
-  border: 1px solid rgba(0,0,0,0);
-  transition: all .2s ease;
-}
-
-.tile:hover .cap {
-  color: rgba(23,23,23,.82);
-  background: rgba(246,243,238,.86);
-  border-color: var(--hairline);
-}
-
-.tile--wide {
-  grid-column: 1 / -1;
-}
-
-/* ============================================
-   CONCEPT ART LIGHTBOX
-   ============================================ */
-.lightbox {
-  width: min(1100px, 92vw);
-  border: none;
-  padding: 0;
-  background: rgba(246,243,238,.98);
-}
-
-.lightbox::backdrop {
-  background: rgba(0,0,0,.45);
-}
-
-.lightbox-img {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-.lightbox-close {
-  position: absolute;
-  top: 10px;
-  right: 12px;
-  width: 40px;
-  height: 40px;
-  border: none;
-  background: rgba(246,243,238,.9);
-  border: 1px solid var(--hairline);
-  font-size: 26px;
-  line-height: 0;
-  cursor: pointer;
-}
-
-.lightbox-cap {
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
   margin: 0;
-  padding: 14px 16px 16px 16px;
-  color: var(--muted);
-  border-top: 1px solid var(--hairline);
-  font-size: 13px;
-  letter-spacing: .04em;
+  padding: 0;
+  border: none;
+  background: rgba(10,10,10,.96);
+}
+
+.concept-dialog:not([open]) {
+  display: none;
+}
+
+.concept-dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.concept-dialog::backdrop {
+  background: transparent;
+}
+
+.concept-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: rgba(0,0,0,.4);
+  color: rgba(255,255,255,.9);
+  flex-shrink: 0;
+}
+
+.concept-counter {
+  font-size: 14px;
+  color: rgba(255,255,255,.6);
+  letter-spacing: .06em;
+}
+
+.concept-close {
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,.7);
+  font-size: 32px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color .2s ease;
+}
+
+.concept-close:hover {
+  color: #fff;
+}
+
+.concept-viewport {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: 20px;
+}
+
+.concept-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  cursor: pointer;
+  user-select: none;
+  opacity: 0;
+  transition: opacity .15s ease;
+}
+
+.concept-img.is-loaded {
+  opacity: 1;
+}
+
+.concept-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 60px;
+  height: 80px;
+  border: none;
+  background: rgba(255,255,255,.08);
+  color: rgba(255,255,255,.7);
+  font-size: 36px;
+  cursor: pointer;
+  transition: background .2s ease, color .2s ease;
+  z-index: 10;
+}
+
+.concept-nav:hover:not(:disabled) {
+  background: rgba(255,255,255,.15);
+  color: #fff;
+}
+
+.concept-nav:disabled {
+  opacity: .25;
+  cursor: default;
+}
+
+.concept-nav--prev {
+  left: 20px;
+  border-radius: 4px;
+}
+
+.concept-nav--next {
+  right: 20px;
+  border-radius: 4px;
+}
+
+.concept-caption {
+  padding: 16px 24px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.concept-caption:empty,
+.concept-caption:has(.concept-title:empty):has(.concept-note:empty) {
+  display: none;
+}
+
+.concept-title {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 500;
+  color: rgba(255,255,255,.9);
+}
+
+.concept-title:empty {
+  display: none;
+}
+
+.concept-note {
+  margin: 6px 0 0 0;
+  font-size: 14px;
+  color: rgba(255,255,255,.5);
+}
+
+.concept-note:empty {
+  display: none;
 }
 
 /* ============================================
@@ -519,70 +622,62 @@ body {
 @media (max-width: 1023px) {
   :root { --pad: 32px; }
 
-  .pagewrap { padding: 110px var(--pad) 64px var(--pad); }
-
-  .reader-nav { width: 50px; height: 70px; font-size: 30px; }
-  .reader-nav--prev { left: 10px; }
-  .reader-nav--next { right: 10px; }
-}
-
-@media (max-width: 840px) {
-  .home-wrap {
-    grid-template-columns: 1fr;
-    padding-top: 86px;
-  }
-
-  .album-rail {
-    position: relative;
-    top: auto;
-    border-right: none;
-    border-bottom: 1px solid var(--hairline);
-    padding-right: 0;
-    padding-bottom: 14px;
-    margin-bottom: 14px;
-  }
-
-  .volume-rail {
-    flex-direction: row;
-    overflow-x: auto;
-    padding-bottom: 8px;
-    gap: 16px;
-  }
-
-  .volume-rail .volume-card {
-    min-width: 160px;
-    flex-shrink: 0;
-  }
-
-  .hero-bg {
-    right: -40vw;
-    opacity: 0.10;
-  }
-
-  .home-hint {
-    flex-wrap: wrap;
-  }
+  .reader-nav,
+  .concept-nav { width: 50px; height: 70px; font-size: 30px; }
+  .reader-nav--prev,
+  .concept-nav--prev { left: 10px; }
+  .reader-nav--next,
+  .concept-nav--next { right: 10px; }
 }
 
 @media (max-width: 767px) {
   :root { --pad: var(--pad-m); }
 
   .topbar { padding: 18px var(--pad); }
-  .topnav { gap: 14px; }
-  .topnav a { font-size: 11px; }
 
-  .gallery { grid-template-columns: 1fr; }
+  .landing-wrap { padding-top: 80px; }
 
-  .reader-header { padding: 12px 16px; }
-  .reader-title { font-size: 15px; }
-  .reader-counter { font-size: 12px; }
-  .reader-close { width: 40px; height: 40px; font-size: 28px; }
-  .reader-viewport { padding: 10px; }
-  .reader-nav { width: 44px; height: 60px; font-size: 26px; }
-  .reader-nav--prev { left: 6px; }
-  .reader-nav--next { right: 6px; }
+  .album-grid {
+    flex-direction: column;
+    gap: 20px;
+  }
 
-  .volume-rail .volume-card {
-    min-width: 140px;
+  .album-card {
+    width: 100%;
+    max-width: 280px;
+  }
+
+  .concept-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .hero-bg {
+    right: -50vw;
+    opacity: 0.08;
+  }
+
+  .reader-header,
+  .concept-header { padding: 12px 16px; }
+  .reader-counter,
+  .concept-counter { font-size: 12px; }
+  .reader-close,
+  .concept-close { width: 40px; height: 40px; font-size: 28px; }
+  .reader-viewport,
+  .concept-viewport { padding: 10px; }
+  .reader-nav,
+  .concept-nav { width: 44px; height: 60px; font-size: 26px; }
+  .reader-nav--prev,
+  .concept-nav--prev { left: 6px; }
+  .reader-nav--next,
+  .concept-nav--next { right: 6px; }
+
+  .cover-content {
+    top: 65%;
+  }
+
+  .cover-cta {
+    padding: 12px 20px;
+    font-size: 11px;
   }
 }

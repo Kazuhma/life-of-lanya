@@ -32,25 +32,34 @@
   // ============================================
   // DOM ELEMENTS
   // ============================================
-  const views = Array.from(document.querySelectorAll('[data-view]'));
-  const navLinks = Array.from(document.querySelectorAll('[data-nav]'));
-  const volumeGrid = document.getElementById('volumeGrid');
-  const conceptGallery = document.getElementById('conceptGallery');
+  const albumGrid = document.getElementById('albumGrid');
+  const conceptGrid = document.getElementById('conceptGrid');
 
-  // Reader (lightbox-style)
+  // Reader dialog
   const readerDialog = document.querySelector('[data-reader-dialog]');
+  const readerCover = document.querySelector('[data-reader-cover]');
+  const readerContent = document.querySelector('[data-reader-content]');
+  const coverBg = document.querySelector('[data-cover-bg]');
+  const coverLabel = document.querySelector('[data-cover-label]');
+  const coverTitle = document.querySelector('[data-cover-title]');
+  const coverSubtitle = document.querySelector('[data-cover-subtitle]');
+  const coverStart = document.querySelector('[data-cover-start]');
+  const coverBack = document.querySelector('[data-cover-back]');
   const readerImg = document.querySelector('[data-reader-img]');
-  const readerTitle = document.querySelector('[data-reader-title]');
   const readerCounter = document.querySelector('[data-reader-counter]');
   const readerClose = document.querySelector('[data-reader-close]');
   const readerPrev = document.querySelector('[data-reader-prev]');
   const readerNext = document.querySelector('[data-reader-next]');
 
-  // Concept art lightbox
-  const lightboxDialog = document.querySelector('[data-lightbox-dialog]');
-  const lightboxImg = document.querySelector('[data-lightbox-img]');
-  const lightboxCap = document.querySelector('[data-lightbox-cap]');
-  const lightboxClose = document.querySelector('[data-lightbox-close]');
+  // Concept art dialog
+  const conceptDialog = document.querySelector('[data-concept-dialog]');
+  const conceptImg = document.querySelector('[data-concept-img]');
+  const conceptCounter = document.querySelector('[data-concept-counter]');
+  const conceptClose = document.querySelector('[data-concept-close]');
+  const conceptPrev = document.querySelector('[data-concept-prev]');
+  const conceptNext = document.querySelector('[data-concept-next]');
+  const conceptTitle = document.querySelector('[data-concept-title]');
+  const conceptNote = document.querySelector('[data-concept-note]');
 
   // ============================================
   // URL HELPERS
@@ -62,84 +71,96 @@
   // ============================================
   // ROUTING
   // ============================================
-  function setActive(viewName) {
-    views.forEach(v => v.classList.toggle('is-active', v.dataset.view === viewName));
-    navLinks.forEach(a => a.classList.toggle('is-active', a.dataset.nav === viewName));
-
-    if (viewName === 'home') {
-      renderVolumeGrid();
-    } else if (viewName === 'concept-art') {
-      renderConceptGallery();
-      window.scrollTo({ top: 0, behavior: 'auto' });
-    }
-  }
-
   function route() {
     const raw = (location.hash || '#/').replace(/^#\//, '').trim();
     const parts = raw ? raw.split('/').filter(Boolean) : [];
     const [root, a, b] = parts;
 
-    // Home
+    // Home / Landing
     if (!root) {
-      setActive('home');
-      return;
-    }
-
-    // Concept art mode
-    if (root === 'concept-art') {
-      setActive('concept-art');
+      renderLanding();
       return;
     }
 
     // Reading deep link: #/read/:vol/:page
     if (root === 'read') {
-      setActive('home'); // Reader is a modal over home
+      renderLanding();
       const vol = a ? parseInt(a, 10) : null;
-      const page = b ? parseInt(b, 10) : 1;
+      const page = b ? parseInt(b, 10) : 0; // 0 = cover
       if (vol) openReader(vol, page, { syncUrl: false });
       return;
     }
 
-    setActive('home');
+    // Concept art deep link: #/art/:index
+    if (root === 'art') {
+      renderLanding();
+      const index = a ? parseInt(a, 10) : 0;
+      openConceptArt(index, { syncUrl: false });
+      return;
+    }
+
+    renderLanding();
   }
 
   // ============================================
-  // VOLUME GRID (Album rail on home)
+  // LANDING PAGE
   // ============================================
-  function renderVolumeGrid() {
-    if (!siteData || !volumeGrid) return;
+  function renderLanding() {
+    renderAlbumGrid();
+    renderConceptGrid();
+  }
+
+  function renderAlbumGrid() {
+    if (!siteData || !albumGrid) return;
 
     const volumes = siteData.volumes || [];
 
     if (volumes.length === 0) {
-      volumeGrid.innerHTML = '<p class="empty-state">No albums yet.</p>';
+      albumGrid.innerHTML = '<p class="empty-state">No albums yet.</p>';
       return;
     }
 
-    volumeGrid.innerHTML = volumes.map(vol => {
+    albumGrid.innerHTML = volumes.map(vol => {
       const volNum = String(vol.number).padStart(2, '0');
-      const coverSrc = `assets/pages/vol-${volNum}/001.jpg`;
+      const coverSrc = `assets/pages/vol-${volNum}/000-cover.webp`;
       return `
-        <a class="volume-card" href="#/read/${vol.number}/1">
+        <a class="album-card" href="#/read/${vol.number}/0">
           <img src="${coverSrc}" alt="Volume ${vol.number} cover" loading="lazy" />
-          <div class="volume-info">
-            <span class="volume-label">Volume ${vol.number}</span>
-            <span class="volume-title">${vol.title}</span>
-            <span class="volume-pages">${vol.pages} pages</span>
+          <div class="album-info">
+            <span class="album-label">Volume ${toRoman(vol.number)}</span>
+            <span class="album-title">${vol.title}</span>
+            <span class="album-pages">${vol.pages} pages</span>
           </div>
         </a>
       `;
     }).join('');
   }
 
+  function renderConceptGrid() {
+    if (!siteData || !conceptGrid) return;
+
+    const artworks = siteData.conceptArt || [];
+
+    if (artworks.length === 0) {
+      conceptGrid.innerHTML = '<p class="empty-state">Coming soon.</p>';
+      return;
+    }
+
+    conceptGrid.innerHTML = artworks.map((art, i) => `
+      <a class="concept-thumb" href="#/art/${i}">
+        <img src="${art.src}" alt="${art.title || 'Concept art'}" loading="lazy" />
+      </a>
+    `).join('');
+  }
+
   // ============================================
-  // COMIC READER (Lightbox-style)
+  // COMIC READER
   // ============================================
   let currentVolume = null;
-  let currentPage = 1;
+  let currentPage = 0; // 0 = cover
   let totalPages = 0;
 
-  function openReader(volumeNum, page = 1, opts = { syncUrl: true }) {
+  function openReader(volumeNum, page = 0, opts = { syncUrl: true }) {
     if (!siteData) return;
 
     const volume = siteData.volumes.find(v => v.number === volumeNum);
@@ -147,25 +168,59 @@
 
     currentVolume = volume;
     totalPages = volume.pages;
-    currentPage = Math.min(Math.max(1, page), totalPages);
+    currentPage = Math.min(Math.max(0, page), totalPages);
 
-    readerTitle.textContent = `Volume ${volume.number}: ${volume.title}`;
-    updateReaderPage(opts.syncUrl);
+    if (currentPage === 0) {
+      showCoverMode();
+    } else {
+      showReadingMode();
+    }
 
     if (!readerDialog.open) {
       readerDialog.showModal();
     }
+
+    if (opts.syncUrl) {
+      setHashSilently(`#/read/${currentVolume.number}/${currentPage}`);
+    }
   }
 
-  function updateReaderPage(syncUrl = true) {
+  function showCoverMode() {
     if (!currentVolume) return;
 
     const volNum = String(currentVolume.number).padStart(2, '0');
-    const pageNum = String(currentPage).padStart(3, '0');
-    const src = `assets/pages/vol-${volNum}/${pageNum}.jpg`;
+    const coverSrc = `assets/pages/vol-${volNum}/000-cover.webp`;
 
+    coverBg.style.backgroundImage = `url(${coverSrc})`;
+    coverLabel.textContent = `VOLUME ${toRoman(currentVolume.number)}`;
+    coverTitle.textContent = currentVolume.title.toUpperCase();
+    coverSubtitle.textContent = currentVolume.subtitle || '';
+
+    readerCover.classList.add('is-active');
+    readerContent.classList.remove('is-active');
+  }
+
+  function showReadingMode() {
+    if (!currentVolume) return;
+
+    readerCover.classList.remove('is-active');
+    readerContent.classList.add('is-active');
+
+    updateReaderPage(true);
+  }
+
+  function updateReaderPage(syncUrl = true) {
+    if (!currentVolume || currentPage < 1) return;
+
+    const volNum = String(currentVolume.number).padStart(2, '0');
+    const pageNum = String(currentPage).padStart(3, '0');
+    const src = `assets/pages/vol-${volNum}/${pageNum}.webp`;
+
+    readerImg.classList.remove('is-loaded');
+    readerImg.onload = () => readerImg.classList.add('is-loaded');
     readerImg.src = src;
     readerImg.alt = `${currentVolume.title} — Page ${currentPage}`;
+
     readerCounter.textContent = `${currentPage} / ${totalPages}`;
 
     // Update nav button states
@@ -177,31 +232,75 @@
       setHashSilently(`#/read/${currentVolume.number}/${currentPage}`);
     }
     saveProgress();
+
+    // Preload next page
+    if (currentPage < totalPages) {
+      const nextPageNum = String(currentPage + 1).padStart(3, '0');
+      const nextSrc = `assets/pages/vol-${volNum}/${nextPageNum}.webp`;
+      const preload = new Image();
+      preload.src = nextSrc;
+    }
   }
 
   function goToPrevPage() {
     if (currentPage > 1) {
       currentPage--;
       updateReaderPage();
+    } else if (currentPage === 1) {
+      // Go back to cover
+      currentPage = 0;
+      showCoverMode();
+      setHashSilently(`#/read/${currentVolume.number}/0`);
     }
   }
 
   function goToNextPage() {
     if (currentPage < totalPages) {
       currentPage++;
-      updateReaderPage();
+      if (currentPage === 1 && readerCover.classList.contains('is-active')) {
+        showReadingMode();
+      } else {
+        updateReaderPage();
+      }
     }
+  }
+
+  function startReading() {
+    currentPage = 1;
+    showReadingMode();
+    setHashSilently(`#/read/${currentVolume.number}/1`);
   }
 
   function closeReader() {
     readerDialog.close();
+    readerCover.classList.remove('is-active');
+    readerContent.classList.remove('is-active');
     currentVolume = null;
-    currentPage = 1;
+    currentPage = 0;
     totalPages = 0;
     setHashSilently('#/');
   }
 
   // Reader event listeners
+  coverStart?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    startReading();
+  });
+
+  coverBack?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    closeReader();
+  });
+
+  // Click on cover background to start reading
+  readerCover?.addEventListener('click', (e) => {
+    if (e.target === readerCover || e.target.classList.contains('cover-bg') || e.target.classList.contains('cover-overlay')) {
+      startReading();
+    }
+  });
+
   readerClose?.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -231,58 +330,119 @@
     }
   });
 
-  // Close on backdrop click
+  // Close on backdrop click (reading mode only)
   readerDialog?.addEventListener('click', (e) => {
-    if (e.target === readerDialog) {
+    if (e.target === readerDialog && readerContent.classList.contains('is-active')) {
       closeReader();
     }
   });
 
   // ============================================
-  // CONCEPT ART GALLERY
+  // CONCEPT ART MODAL
   // ============================================
-  function renderConceptGallery() {
-    if (!siteData || !conceptGallery) return;
+  let conceptArtworks = [];
+  let currentArtIndex = 0;
 
-    const artworks = siteData.conceptArt || [];
+  function openConceptArt(index = 0, opts = { syncUrl: true }) {
+    if (!siteData) return;
 
-    if (artworks.length === 0) {
-      conceptGallery.innerHTML = '<p class="empty-state">Concept art coming soon.</p>';
-      return;
+    conceptArtworks = siteData.conceptArt || [];
+    if (conceptArtworks.length === 0) return;
+
+    currentArtIndex = Math.min(Math.max(0, index), conceptArtworks.length - 1);
+
+    updateConceptArt();
+
+    if (!conceptDialog.open) {
+      conceptDialog.showModal();
     }
 
-    conceptGallery.innerHTML = artworks.map(art => `
-      <a class="tile" href="${art.src}" data-lightbox>
-        <img src="${art.src}" alt="${art.title}" loading="lazy" />
-        <span class="cap">${art.title}</span>
-      </a>
-    `).join('');
+    if (opts.syncUrl) {
+      setHashSilently(`#/art/${currentArtIndex}`);
+    }
   }
 
-  // ============================================
-  // CONCEPT ART LIGHTBOX
-  // ============================================
-  function openLightbox(href, capText) {
-    if (!lightboxDialog) return;
-    lightboxImg.src = href;
-    lightboxImg.alt = capText || 'Concept Art';
-    lightboxCap.textContent = capText || '';
-    lightboxDialog.showModal();
+  function updateConceptArt() {
+    const art = conceptArtworks[currentArtIndex];
+    if (!art) return;
+
+    conceptImg.classList.remove('is-loaded');
+    conceptImg.onload = () => conceptImg.classList.add('is-loaded');
+    conceptImg.src = art.src;
+    conceptImg.alt = art.title || 'Concept art';
+
+    conceptCounter.textContent = `${currentArtIndex + 1} / ${conceptArtworks.length}`;
+    conceptTitle.textContent = art.title || '';
+    conceptNote.textContent = art.note || '';
+
+    // Update nav states
+    conceptPrev.disabled = currentArtIndex <= 0;
+    conceptNext.disabled = currentArtIndex >= conceptArtworks.length - 1;
+
+    setHashSilently(`#/art/${currentArtIndex}`);
+
+    // Preload next
+    if (currentArtIndex < conceptArtworks.length - 1) {
+      const preload = new Image();
+      preload.src = conceptArtworks[currentArtIndex + 1].src;
+    }
   }
 
-  document.addEventListener('click', (e) => {
-    const a = e.target.closest('a[data-lightbox]');
-    if (!a) return;
+  function prevConceptArt() {
+    if (currentArtIndex > 0) {
+      currentArtIndex--;
+      updateConceptArt();
+    }
+  }
+
+  function nextConceptArt() {
+    if (currentArtIndex < conceptArtworks.length - 1) {
+      currentArtIndex++;
+      updateConceptArt();
+    }
+  }
+
+  function closeConceptArt() {
+    conceptDialog.close();
+    conceptArtworks = [];
+    currentArtIndex = 0;
+    setHashSilently('#/');
+  }
+
+  // Concept art event listeners
+  conceptClose?.addEventListener('click', (e) => {
     e.preventDefault();
-    const cap = a.querySelector('.cap')?.textContent?.trim() || '';
-    openLightbox(a.getAttribute('href'), cap);
+    e.stopPropagation();
+    closeConceptArt();
   });
 
-  lightboxClose?.addEventListener('click', () => lightboxDialog.close());
+  conceptPrev?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    prevConceptArt();
+  });
 
-  lightboxDialog?.addEventListener('click', (e) => {
-    if (e.target === lightboxDialog) {
-      lightboxDialog.close();
+  conceptNext?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    nextConceptArt();
+  });
+
+  // Click on image to advance
+  conceptImg?.addEventListener('click', (e) => {
+    const rect = conceptImg.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    if (clickX < rect.width / 3) {
+      prevConceptArt();
+    } else {
+      nextConceptArt();
+    }
+  });
+
+  // Close on backdrop click
+  conceptDialog?.addEventListener('click', (e) => {
+    if (e.target === conceptDialog) {
+      closeConceptArt();
     }
   });
 
@@ -294,20 +454,43 @@
     if (readerDialog?.open) {
       if (e.key === 'Escape') {
         closeReader();
-      } else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
-        goToPrevPage();
-      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D' || e.key === ' ') {
-        e.preventDefault();
-        goToNextPage();
+      } else if (readerContent.classList.contains('is-active')) {
+        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+          goToPrevPage();
+        } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D' || e.key === ' ') {
+          e.preventDefault();
+          goToNextPage();
+        }
+      } else if (readerCover.classList.contains('is-active')) {
+        // On cover, any nav key starts reading
+        if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D' || e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault();
+          startReading();
+        }
       }
       return;
     }
 
-    // Lightbox close
-    if (lightboxDialog?.open && e.key === 'Escape') {
-      lightboxDialog.close();
+    // Concept art navigation
+    if (conceptDialog?.open) {
+      if (e.key === 'Escape') {
+        closeConceptArt();
+      } else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        prevConceptArt();
+      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D' || e.key === ' ') {
+        e.preventDefault();
+        nextConceptArt();
+      }
     }
   });
+
+  // ============================================
+  // UTILITIES
+  // ============================================
+  function toRoman(num) {
+    const roman = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+    return roman[num] || num.toString();
+  }
 
   // ============================================
   // INIT
