@@ -1,0 +1,21 @@
+{
+  "title": "Life of Lanya",
+  "subtitle": "Volume I: This Is Lanya",
+
+  "heroImage": "assets/hero.jpg",
+
+  "volumes": [
+    {
+      "number": 1,
+      "title": "This Is Lanya",
+      "pages": 3
+    }
+  ],
+
+  "conceptArt": [
+    {
+      "src": "assets/concept-art/sample.jpg",
+      "title": "Sample Concept Art"
+    }
+  ]
+}

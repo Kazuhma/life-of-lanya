@@ -4,15 +4,15 @@
   // ============================================
   // DATA
   // ============================================
-  let chaptersData = null;
+  let siteData = null;
 
-  async function loadChapters() {
+  async function loadData() {
     try {
-      const response = await fetch('chapters.json');
-      chaptersData = await response.json();
-      return chaptersData;
+      const response = await fetch('data.json');
+      siteData = await response.json();
+      return siteData;
     } catch (err) {
-      console.error('Failed to load chapters.json:', err);
+      console.error('Failed to load data.json:', err);
       return null;
     }
   }
@@ -23,21 +23,27 @@
   const views = Array.from(document.querySelectorAll('[data-view]'));
   const topbar = document.querySelector('[data-topbar]');
   const navLinks = Array.from(document.querySelectorAll('[data-nav]'));
-  const chapterNav = document.getElementById('chapterNav');
-  const reader = document.getElementById('reader');
-  const gallery = document.getElementById('gallery');
+  const volumeGrid = document.getElementById('volumeGrid');
+  const conceptGallery = document.getElementById('conceptGallery');
 
-  // Lightbox
-  const dialog = document.querySelector('[data-lightbox-dialog]');
-  const dialogImg = document.querySelector('[data-lightbox-img]');
-  const dialogCap = document.querySelector('[data-lightbox-cap]');
-  const closeBtn = document.querySelector('[data-lightbox-close]');
+  // Reader (lightbox-style)
+  const readerDialog = document.querySelector('[data-reader-dialog]');
+  const readerImg = document.querySelector('[data-reader-img]');
+  const readerTitle = document.querySelector('[data-reader-title]');
+  const readerCounter = document.querySelector('[data-reader-counter]');
+  const readerClose = document.querySelector('[data-reader-close]');
+  const readerPrev = document.querySelector('[data-reader-prev]');
+  const readerNext = document.querySelector('[data-reader-next]');
+
+  // Concept art lightbox
+  const lightboxDialog = document.querySelector('[data-lightbox-dialog]');
+  const lightboxImg = document.querySelector('[data-lightbox-img]');
+  const lightboxCap = document.querySelector('[data-lightbox-cap]');
+  const lightboxClose = document.querySelector('[data-lightbox-close]');
 
   // ============================================
   // VIEW ROUTING
   // ============================================
-  let currentChapter = 1;
-
   function setActive(viewName) {
     views.forEach(v => v.classList.toggle('is-active', v.dataset.view === viewName));
     navLinks.forEach(a => a.classList.toggle('is-active', a.dataset.nav === viewName));
@@ -52,10 +58,9 @@
 
     // Load content for view
     if (viewName === 'read') {
-      renderChapterNav();
-      renderReader(currentChapter);
-    } else if (viewName === 'art') {
-      renderGallery();
+      renderVolumeGrid();
+    } else if (viewName === 'concept-art') {
+      renderConceptGallery();
     }
   }
 
@@ -67,16 +72,10 @@
       return;
     }
 
-    // Check for chapter-specific route: #/read/2
-    const readMatch = hash.match(/^read(?:\/(\d+))?$/);
-    if (readMatch) {
-      currentChapter = readMatch[1] ? parseInt(readMatch[1], 10) : 1;
+    if (hash.startsWith('read')) {
       setActive('read');
-      return;
-    }
-
-    if (hash.startsWith('art')) {
-      setActive('art');
+    } else if (hash.startsWith('concept-art')) {
+      setActive('concept-art');
     } else if (hash.startsWith('updates')) {
       setActive('updates');
     } else {
@@ -85,77 +84,140 @@
   }
 
   // ============================================
-  // CHAPTER NAVIGATION
+  // VOLUME GRID (Read page entry points)
   // ============================================
-  function renderChapterNav() {
-    if (!chaptersData || !chapterNav) return;
+  function renderVolumeGrid() {
+    if (!siteData || !volumeGrid) return;
 
-    chapterNav.innerHTML = chaptersData.chapters.map(ch => `
-      <button class="chapter-btn ${ch.number === currentChapter ? 'is-active' : ''}"
-              data-chapter="${ch.number}">
-        Chapter ${ch.number}: ${ch.title}
-      </button>
-    `).join('');
+    const volumes = siteData.volumes || [];
 
-    // Add click handlers
-    chapterNav.querySelectorAll('.chapter-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const num = parseInt(btn.dataset.chapter, 10);
-        currentChapter = num;
-        location.hash = `#/read/${num}`;
-      });
-    });
-  }
-
-  // ============================================
-  // READER
-  // ============================================
-  function renderReader(chapterNum) {
-    if (!chaptersData || !reader) return;
-
-    const chapter = chaptersData.chapters.find(c => c.number === chapterNum);
-    if (!chapter) {
-      reader.innerHTML = '<p class="reader-empty">Chapter not found.</p>';
+    if (volumes.length === 0) {
+      volumeGrid.innerHTML = '<p class="empty-state">No volumes available yet.</p>';
       return;
     }
 
-    // Generate page images
-    const pages = [];
-    for (let i = 1; i <= chapter.pages; i++) {
-      const pageNum = String(i).padStart(3, '0');
-      const chapterNum = String(chapter.number).padStart(2, '0');
-      pages.push(`
-        <img src="assets/pages/chapter-${chapterNum}/${pageNum}.jpg"
-             alt="${chapter.title} — Page ${i}"
-             loading="lazy" />
-      `);
-    }
-
-    reader.innerHTML = pages.join('');
-
-    // Update chapter nav active state
-    chapterNav.querySelectorAll('.chapter-btn').forEach(btn => {
-      btn.classList.toggle('is-active', parseInt(btn.dataset.chapter, 10) === chapterNum);
-    });
+    volumeGrid.innerHTML = volumes.map(vol => {
+      const volNum = String(vol.number).padStart(2, '0');
+      const coverSrc = `assets/pages/vol-${volNum}/001.jpg`;
+      return `
+        <a class="volume-card" href="#" data-open-reader="${vol.number}">
+          <img src="${coverSrc}" alt="Volume ${vol.number} cover" loading="lazy" />
+          <div class="volume-info">
+            <span class="volume-label">Volume ${vol.number}</span>
+            <span class="volume-title">${vol.title}</span>
+            <span class="volume-pages">${vol.pages} pages</span>
+          </div>
+        </a>
+      `;
+    }).join('');
   }
 
   // ============================================
-  // GALLERY
+  // COMIC READER (Lightbox-style)
   // ============================================
-  function renderGallery() {
-    if (!chaptersData || !gallery) return;
+  let currentVolume = null;
+  let currentPage = 1;
+  let totalPages = 0;
 
-    const artworks = chaptersData.artwork || [];
+  function openReader(volumeNum) {
+    if (!siteData) return;
+
+    const volume = siteData.volumes.find(v => v.number === volumeNum);
+    if (!volume) return;
+
+    currentVolume = volume;
+    currentPage = 1;
+    totalPages = volume.pages;
+
+    readerTitle.textContent = `Volume ${volume.number}: ${volume.title}`;
+    updateReaderPage();
+    readerDialog.showModal();
+  }
+
+  function updateReaderPage() {
+    if (!currentVolume) return;
+
+    const volNum = String(currentVolume.number).padStart(2, '0');
+    const pageNum = String(currentPage).padStart(3, '0');
+    const src = `assets/pages/vol-${volNum}/${pageNum}.jpg`;
+
+    readerImg.src = src;
+    readerImg.alt = `${currentVolume.title} — Page ${currentPage}`;
+    readerCounter.textContent = `${currentPage} / ${totalPages}`;
+
+    // Update nav button states
+    readerPrev.disabled = currentPage <= 1;
+    readerNext.disabled = currentPage >= totalPages;
+  }
+
+  function goToPrevPage() {
+    if (currentPage > 1) {
+      currentPage--;
+      updateReaderPage();
+    }
+  }
+
+  function goToNextPage() {
+    if (currentPage < totalPages) {
+      currentPage++;
+      updateReaderPage();
+    }
+  }
+
+  function closeReader() {
+    readerDialog.close();
+    currentVolume = null;
+    currentPage = 1;
+    totalPages = 0;
+  }
+
+  // Reader event listeners
+  document.addEventListener('click', (e) => {
+    const opener = e.target.closest('[data-open-reader]');
+    if (opener) {
+      e.preventDefault();
+      const volNum = parseInt(opener.dataset.openReader, 10);
+      openReader(volNum);
+    }
+  });
+
+  readerClose?.addEventListener('click', closeReader);
+  readerPrev?.addEventListener('click', goToPrevPage);
+  readerNext?.addEventListener('click', goToNextPage);
+
+  // Click on image to advance
+  readerImg?.addEventListener('click', (e) => {
+    const rect = readerImg.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    if (clickX < rect.width / 3) {
+      goToPrevPage();
+    } else {
+      goToNextPage();
+    }
+  });
+
+  // Close on backdrop click
+  readerDialog?.addEventListener('click', (e) => {
+    if (e.target === readerDialog) {
+      closeReader();
+    }
+  });
+
+  // ============================================
+  // CONCEPT ART GALLERY
+  // ============================================
+  function renderConceptGallery() {
+    if (!siteData || !conceptGallery) return;
+
+    const artworks = siteData.conceptArt || [];
 
     if (artworks.length === 0) {
-      gallery.innerHTML = '<p class="reader-empty">No artwork yet.</p>';
+      conceptGallery.innerHTML = '<p class="empty-state">Concept art coming soon.</p>';
       return;
     }
 
-    gallery.innerHTML = artworks.map((art, i) => `
-      <a class="tile ${art.featured ? 'tile--wide' : ''}"
-         href="${art.src}"
-         data-lightbox>
+    conceptGallery.innerHTML = artworks.map(art => `
+      <a class="tile" href="${art.src}" data-lightbox>
         <img src="${art.src}" alt="${art.title}" loading="lazy" />
         <span class="cap">${art.title}</span>
       </a>
@@ -163,14 +225,14 @@
   }
 
   // ============================================
-  // LIGHTBOX
+  // CONCEPT ART LIGHTBOX
   // ============================================
   function openLightbox(href, capText) {
-    if (!dialog) return;
-    dialogImg.src = href;
-    dialogImg.alt = capText || 'Artwork';
-    dialogCap.textContent = capText || '';
-    dialog.showModal();
+    if (!lightboxDialog) return;
+    lightboxImg.src = href;
+    lightboxImg.alt = capText || 'Concept Art';
+    lightboxCap.textContent = capText || '';
+    lightboxDialog.showModal();
   }
 
   document.addEventListener('click', (e) => {
@@ -181,45 +243,34 @@
     openLightbox(a.getAttribute('href'), cap);
   });
 
-  closeBtn?.addEventListener('click', () => dialog.close());
+  lightboxClose?.addEventListener('click', () => lightboxDialog.close());
 
-  dialog?.addEventListener('click', (e) => {
-    const rect = dialog.getBoundingClientRect();
-    const inDialog = rect.top <= e.clientY && e.clientY <= rect.bottom &&
-                     rect.left <= e.clientX && e.clientX <= rect.right;
-    if (!inDialog) dialog.close();
-  });
-
-  // Close on Escape key
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && dialog?.open) {
-      dialog.close();
+  lightboxDialog?.addEventListener('click', (e) => {
+    if (e.target === lightboxDialog) {
+      lightboxDialog.close();
     }
   });
 
   // ============================================
-  // KEYBOARD NAVIGATION FOR READER
+  // KEYBOARD NAVIGATION
   // ============================================
   document.addEventListener('keydown', (e) => {
-    // Only in read view
-    const readView = document.querySelector('[data-view="read"]');
-    if (!readView?.classList.contains('is-active')) return;
-    if (!chaptersData) return;
-
-    const maxChapter = chaptersData.chapters.length;
-
-    if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
-      // Previous chapter
-      if (currentChapter > 1) {
-        currentChapter--;
-        location.hash = `#/read/${currentChapter}`;
+    // Reader navigation
+    if (readerDialog?.open) {
+      if (e.key === 'Escape') {
+        closeReader();
+      } else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        goToPrevPage();
+      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D' || e.key === ' ') {
+        e.preventDefault();
+        goToNextPage();
       }
-    } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
-      // Next chapter
-      if (currentChapter < maxChapter) {
-        currentChapter++;
-        location.hash = `#/read/${currentChapter}`;
-      }
+      return;
+    }
+
+    // Lightbox close
+    if (lightboxDialog?.open && e.key === 'Escape') {
+      lightboxDialog.close();
     }
   });
 
@@ -227,7 +278,7 @@
   // INIT
   // ============================================
   async function init() {
-    await loadChapters();
+    await loadData();
     window.addEventListener('hashchange', route);
     route();
   }
