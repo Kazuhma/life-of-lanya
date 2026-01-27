@@ -5,6 +5,7 @@
   // DATA
   // ============================================
   let siteData = null;
+  const PROGRESS_KEY = 'lanya_progress_v1';
 
   async function loadData() {
     try {
@@ -18,6 +19,25 @@
   }
 
   // ============================================
+  // PROGRESS PERSISTENCE
+  // ============================================
+  function saveProgress() {
+    if (!currentVolume) return;
+    localStorage.setItem(PROGRESS_KEY, JSON.stringify({
+      volume: currentVolume.number,
+      page: currentPage
+    }));
+  }
+
+  function loadProgress() {
+    try {
+      return JSON.parse(localStorage.getItem(PROGRESS_KEY) || 'null');
+    } catch {
+      return null;
+    }
+  }
+
+  // ============================================
   // DOM ELEMENTS
   // ============================================
   const views = Array.from(document.querySelectorAll('[data-view]'));
@@ -25,6 +45,8 @@
   const navLinks = Array.from(document.querySelectorAll('[data-nav]'));
   const volumeGrid = document.getElementById('volumeGrid');
   const conceptGallery = document.getElementById('conceptGallery');
+  const continueReading = document.querySelector('[data-continue-reading]');
+  const continueDot = document.querySelector('[data-continue-dot]');
 
   // Reader (lightbox-style)
   const readerDialog = document.querySelector('[data-reader-dialog]');
@@ -42,8 +64,36 @@
   const lightboxClose = document.querySelector('[data-lightbox-close]');
 
   // ============================================
-  // VIEW ROUTING
+  // URL HELPERS
   // ============================================
+  function setHashSilently(nextHash) {
+    history.replaceState(null, '', nextHash);
+  }
+
+  // ============================================
+  // ROUTING
+  // ============================================
+  function parseRoute() {
+    const raw = (location.hash || '#/').replace(/^#\//, '').trim();
+    const parts = raw ? raw.split('/').filter(Boolean) : [];
+    const [root, a, b] = parts;
+
+    // home
+    if (!root) return { view: 'home' };
+
+    // read library OR reader deep link
+    if (root === 'read') {
+      const vol = a ? parseInt(a, 10) : null;
+      const page = b ? parseInt(b, 10) : null;
+      return { view: 'read', vol, page };
+    }
+
+    if (root === 'concept-art') return { view: 'concept-art' };
+    if (root === 'updates') return { view: 'updates' };
+
+    return { view: 'home' };
+  }
+
   function setActive(viewName) {
     views.forEach(v => v.classList.toggle('is-active', v.dataset.view === viewName));
     navLinks.forEach(a => a.classList.toggle('is-active', a.dataset.nav === viewName));
@@ -51,9 +101,10 @@
     // Topbar shows on subpages
     if (viewName === 'home') {
       topbar.classList.remove('is-visible');
+      updateContinueReading();
     } else {
       topbar.classList.add('is-visible');
-      window.scrollTo({ top: 0, behavior: 'instant' });
+      window.scrollTo({ top: 0, behavior: 'auto' });
     }
 
     // Load content for view
@@ -65,21 +116,29 @@
   }
 
   function route() {
-    const hash = (location.hash || '#/').replace('#/', '').trim();
+    const r = parseRoute();
+    setActive(r.view);
 
-    if (!hash) {
-      setActive('home');
-      return;
+    // Deep link opens reader
+    if (r.view === 'read' && r.vol && r.page) {
+      openReader(r.vol, r.page, { syncUrl: false });
     }
+  }
 
-    if (hash.startsWith('read')) {
-      setActive('read');
-    } else if (hash.startsWith('concept-art')) {
-      setActive('concept-art');
-    } else if (hash.startsWith('updates')) {
-      setActive('updates');
+  // ============================================
+  // CONTINUE READING (Home page)
+  // ============================================
+  function updateContinueReading() {
+    if (!continueReading) return;
+
+    const progress = loadProgress();
+    if (progress && progress.volume && progress.page) {
+      continueReading.href = `#/read/${progress.volume}/${progress.page}`;
+      continueReading.style.display = '';
+      if (continueDot) continueDot.style.display = '';
     } else {
-      setActive('home');
+      continueReading.style.display = 'none';
+      if (continueDot) continueDot.style.display = 'none';
     }
   }
 
@@ -100,7 +159,7 @@
       const volNum = String(vol.number).padStart(2, '0');
       const coverSrc = `assets/pages/vol-${volNum}/001.jpg`;
       return `
-        <a class="volume-card" href="#" data-open-reader="${vol.number}">
+        <a class="volume-card" href="#/read/${vol.number}/1">
           <img src="${coverSrc}" alt="Volume ${vol.number} cover" loading="lazy" />
           <div class="volume-info">
             <span class="volume-label">Volume ${vol.number}</span>
@@ -119,22 +178,25 @@
   let currentPage = 1;
   let totalPages = 0;
 
-  function openReader(volumeNum) {
+  function openReader(volumeNum, page = 1, opts = { syncUrl: true }) {
     if (!siteData) return;
 
     const volume = siteData.volumes.find(v => v.number === volumeNum);
     if (!volume) return;
 
     currentVolume = volume;
-    currentPage = 1;
     totalPages = volume.pages;
+    currentPage = Math.min(Math.max(1, page), totalPages);
 
     readerTitle.textContent = `Volume ${volume.number}: ${volume.title}`;
-    updateReaderPage();
-    readerDialog.showModal();
+    updateReaderPage(opts.syncUrl);
+
+    if (!readerDialog.open) {
+      readerDialog.showModal();
+    }
   }
 
-  function updateReaderPage() {
+  function updateReaderPage(syncUrl = true) {
     if (!currentVolume) return;
 
     const volNum = String(currentVolume.number).padStart(2, '0');
@@ -148,6 +210,12 @@
     // Update nav button states
     readerPrev.disabled = currentPage <= 1;
     readerNext.disabled = currentPage >= totalPages;
+
+    // Sync URL and save progress
+    if (syncUrl) {
+      setHashSilently(`#/read/${currentVolume.number}/${currentPage}`);
+    }
+    saveProgress();
   }
 
   function goToPrevPage() {
@@ -169,18 +237,10 @@
     currentVolume = null;
     currentPage = 1;
     totalPages = 0;
+    setHashSilently('#/read');
   }
 
   // Reader event listeners
-  document.addEventListener('click', (e) => {
-    const opener = e.target.closest('[data-open-reader]');
-    if (opener) {
-      e.preventDefault();
-      const volNum = parseInt(opener.dataset.openReader, 10);
-      openReader(volNum);
-    }
-  });
-
   readerClose?.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();

@@ -196,6 +196,11 @@ body {
   color: var(--ink);
 }
 
+.bottomlink--primary {
+  color: var(--ink);
+  font-weight: 500;
+}
+
 .dot {
   color: rgba(23,23,23,.35);
 }
