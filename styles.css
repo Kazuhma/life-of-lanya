@@ -91,7 +91,7 @@ body {
   width: min(900px, 80vw);
   height: min(1100px, 120vh);
   background: url("assets/hero.webp") no-repeat right top / contain;
-  opacity: 0.12;
+  opacity: 0.92;
   filter: grayscale(1) contrast(1.2);
   pointer-events: none;
   z-index: 0;
