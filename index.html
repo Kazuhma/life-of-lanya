@@ -4,11 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Life of Lanya</title>
-  <meta name="description" content="Life of Lanya — A graphic novel following Lanya's journey through life and love." />
+  <meta name="description" content="Life of Lanya — A graphic novel about ambition, restraint, and what slowly comes undone." />
 
   <!-- Open Graph -->
   <meta property="og:title" content="Life of Lanya" />
-  <meta property="og:description" content="A graphic novel following Lanya's journey through life and love." />
+  <meta property="og:description" content="A graphic novel about ambition, restraint, and what slowly comes undone." />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="assets/hero.jpg" />
 
@@ -18,6 +18,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="styles.css" />
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-S4G73EEKS9"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-S4G73EEKS9');
+  </script>
 </head>
 
 <body>
@@ -79,6 +88,7 @@
     <div class="reader-content" data-reader-content>
       <div class="reader-header">
         <button class="reader-close" data-reader-close aria-label="Close reader" type="button">&times;</button>
+        <button class="reader-zoom" data-reader-zoom aria-label="Toggle zoom" type="button">⊕</button>
         <span class="reader-counter" data-reader-counter></span>
       </div>
       <div class="reader-viewport">

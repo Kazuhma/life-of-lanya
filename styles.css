@@ -393,6 +393,26 @@ body {
   color: #fff;
 }
 
+.reader-zoom {
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,.7);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color .2s ease;
+}
+
+.reader-zoom:hover {
+  color: #fff;
+}
+
+.reader-zoom.is-zoomed {
+  color: rgba(255,255,255,.95);
+}
+
 .reader-viewport {
   flex: 1;
   display: flex;
@@ -401,6 +421,17 @@ body {
   position: relative;
   overflow: hidden;
   padding: 20px;
+}
+
+.reader-viewport.is-zoomed {
+  overflow: auto;
+  align-items: flex-start;
+  justify-content: flex-start;
+  cursor: grab;
+}
+
+.reader-viewport.is-zoomed:active {
+  cursor: grabbing;
 }
 
 .reader-page {
@@ -415,6 +446,17 @@ body {
 
 .reader-page.is-loaded {
   opacity: 1;
+}
+
+.reader-viewport.is-zoomed .reader-page {
+  max-width: none;
+  max-height: none;
+  object-fit: none;
+  cursor: grab;
+}
+
+.reader-viewport.is-zoomed:active .reader-page {
+  cursor: grabbing;
 }
 
 .reader-nav {

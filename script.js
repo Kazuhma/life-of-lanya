@@ -50,6 +50,8 @@
   const readerClose = document.querySelector('[data-reader-close]');
   const readerPrev = document.querySelector('[data-reader-prev]');
   const readerNext = document.querySelector('[data-reader-next]');
+  const readerZoom = document.querySelector('[data-reader-zoom]');
+  const readerViewport = document.querySelector('.reader-viewport');
 
   // Concept art dialog
   const conceptDialog = document.querySelector('[data-concept-dialog]');
@@ -212,6 +214,8 @@
   function updateReaderPage(syncUrl = true) {
     if (!currentVolume || currentPage < 1) return;
 
+    resetZoom();
+
     const volNum = String(currentVolume.number).padStart(2, '0');
     const pageNum = String(currentPage).padStart(3, '0');
     const src = `assets/pages/vol-${volNum}/${pageNum}.webp`;
@@ -275,11 +279,67 @@
     readerDialog.close();
     readerCover.classList.remove('is-active');
     readerContent.classList.remove('is-active');
+    resetZoom();
     currentVolume = null;
     currentPage = 0;
     totalPages = 0;
     setHashSilently('#/');
   }
+
+  // Zoom
+  let isZoomed = false;
+  let isDragging = false;
+  let dragStartX = 0;
+  let dragStartY = 0;
+  let scrollStartX = 0;
+  let scrollStartY = 0;
+
+  function toggleZoom() {
+    isZoomed = !isZoomed;
+    readerViewport.classList.toggle('is-zoomed', isZoomed);
+    readerZoom.classList.toggle('is-zoomed', isZoomed);
+    readerZoom.textContent = isZoomed ? '⊖' : '⊕';
+
+    if (isZoomed) {
+      // Center the image after zoom
+      requestAnimationFrame(() => {
+        const vw = readerViewport.clientWidth;
+        const vh = readerViewport.clientHeight;
+        const sw = readerViewport.scrollWidth;
+        const sh = readerViewport.scrollHeight;
+        readerViewport.scrollLeft = (sw - vw) / 2;
+        readerViewport.scrollTop = (sh - vh) / 2;
+      });
+    }
+  }
+
+  function resetZoom() {
+    isZoomed = false;
+    readerViewport?.classList.remove('is-zoomed');
+    readerZoom?.classList.remove('is-zoomed');
+    if (readerZoom) readerZoom.textContent = '⊕';
+  }
+
+  // Drag to pan when zoomed
+  readerViewport?.addEventListener('mousedown', (e) => {
+    if (!isZoomed) return;
+    isDragging = true;
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+    scrollStartX = readerViewport.scrollLeft;
+    scrollStartY = readerViewport.scrollTop;
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    readerViewport.scrollLeft = scrollStartX - (e.clientX - dragStartX);
+    readerViewport.scrollTop = scrollStartY - (e.clientY - dragStartY);
+  });
+
+  document.addEventListener('mouseup', () => {
+    isDragging = false;
+  });
 
   // Reader event listeners
   coverStart?.addEventListener('click', (e) => {
@@ -307,6 +367,12 @@
     closeReader();
   });
 
+  readerZoom?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleZoom();
+  });
+
   readerPrev?.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -319,8 +385,9 @@
     goToNextPage();
   });
 
-  // Click on image to advance
+  // Click on image to advance (disabled when zoomed)
   readerImg?.addEventListener('click', (e) => {
+    if (isZoomed) return;
     const rect = readerImg.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
     if (clickX < rect.width / 3) {
