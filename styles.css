@@ -555,6 +555,26 @@ body {
   color: #fff;
 }
 
+.concept-zoom {
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,.7);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color .2s ease;
+}
+
+.concept-zoom:hover {
+  color: #fff;
+}
+
+.concept-zoom.is-zoomed {
+  color: rgba(255,255,255,.95);
+}
+
 .concept-viewport {
   flex: 1;
   display: flex;
@@ -563,6 +583,17 @@ body {
   position: relative;
   overflow: hidden;
   padding: 20px;
+}
+
+.concept-viewport.is-zoomed {
+  overflow: auto;
+  align-items: flex-start;
+  justify-content: flex-start;
+  cursor: grab;
+}
+
+.concept-viewport.is-zoomed:active {
+  cursor: grabbing;
 }
 
 .concept-img {
@@ -577,6 +608,17 @@ body {
 
 .concept-img.is-loaded {
   opacity: 1;
+}
+
+.concept-viewport.is-zoomed .concept-img {
+  max-width: none;
+  max-height: none;
+  object-fit: none;
+  cursor: grab;
+}
+
+.concept-viewport.is-zoomed:active .concept-img {
+  cursor: grabbing;
 }
 
 .concept-nav {
@@ -705,6 +747,8 @@ body {
   .concept-counter { font-size: 12px; }
   .reader-close,
   .concept-close { width: 40px; height: 40px; font-size: 28px; }
+  .reader-zoom,
+  .concept-zoom { width: 40px; height: 40px; font-size: 18px; }
   .reader-viewport,
   .concept-viewport { padding: 10px; }
   .reader-nav,

@@ -62,6 +62,8 @@
   const conceptNext = document.querySelector('[data-concept-next]');
   const conceptTitle = document.querySelector('[data-concept-title]');
   const conceptNote = document.querySelector('[data-concept-note]');
+  const conceptZoom = document.querySelector('[data-concept-zoom]');
+  const conceptViewport = document.querySelector('.concept-viewport');
 
   // ============================================
   // URL HELPERS
@@ -429,9 +431,61 @@
     }
   }
 
+  // Concept art zoom
+  let isConceptZoomed = false;
+  let isConceptDragging = false;
+  let conceptDragStartX = 0;
+  let conceptDragStartY = 0;
+  let conceptScrollStartX = 0;
+  let conceptScrollStartY = 0;
+
+  function toggleConceptZoom() {
+    isConceptZoomed = !isConceptZoomed;
+    conceptViewport.classList.toggle('is-zoomed', isConceptZoomed);
+    conceptZoom.classList.toggle('is-zoomed', isConceptZoomed);
+    conceptZoom.textContent = isConceptZoomed ? '⊖' : '⊕';
+
+    if (isConceptZoomed) {
+      requestAnimationFrame(() => {
+        conceptViewport.scrollLeft = (conceptViewport.scrollWidth - conceptViewport.clientWidth) / 2;
+        conceptViewport.scrollTop = (conceptViewport.scrollHeight - conceptViewport.clientHeight) / 2;
+      });
+    }
+  }
+
+  function resetConceptZoom() {
+    isConceptZoomed = false;
+    conceptViewport?.classList.remove('is-zoomed');
+    conceptZoom?.classList.remove('is-zoomed');
+    if (conceptZoom) conceptZoom.textContent = '⊕';
+  }
+
+  // Drag to pan concept art when zoomed
+  conceptViewport?.addEventListener('mousedown', (e) => {
+    if (!isConceptZoomed) return;
+    isConceptDragging = true;
+    conceptDragStartX = e.clientX;
+    conceptDragStartY = e.clientY;
+    conceptScrollStartX = conceptViewport.scrollLeft;
+    conceptScrollStartY = conceptViewport.scrollTop;
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!isConceptDragging) return;
+    conceptViewport.scrollLeft = conceptScrollStartX - (e.clientX - conceptDragStartX);
+    conceptViewport.scrollTop = conceptScrollStartY - (e.clientY - conceptDragStartY);
+  });
+
+  document.addEventListener('mouseup', () => {
+    isConceptDragging = false;
+  });
+
   function updateConceptArt() {
     const art = conceptArtworks[currentArtIndex];
     if (!art) return;
+
+    resetConceptZoom();
 
     conceptImg.classList.remove('is-loaded');
     conceptImg.onload = () => conceptImg.classList.add('is-loaded');
@@ -471,6 +525,7 @@
 
   function closeConceptArt() {
     conceptDialog.close();
+    resetConceptZoom();
     conceptArtworks = [];
     currentArtIndex = 0;
     setHashSilently('#/');
@@ -495,8 +550,15 @@
     nextConceptArt();
   });
 
-  // Click on image to advance
+  conceptZoom?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleConceptZoom();
+  });
+
+  // Click on image to advance (disabled when zoomed)
   conceptImg?.addEventListener('click', (e) => {
+    if (isConceptZoomed) return;
     const rect = conceptImg.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
     if (clickX < rect.width / 3) {
