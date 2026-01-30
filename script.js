@@ -303,15 +303,11 @@
     readerZoom.textContent = isZoomed ? '⊖' : '⊕';
 
     if (isZoomed) {
-      // Center the image after zoom
-      requestAnimationFrame(() => {
-        const vw = readerViewport.clientWidth;
-        const vh = readerViewport.clientHeight;
-        const sw = readerViewport.scrollWidth;
-        const sh = readerViewport.scrollHeight;
-        readerViewport.scrollLeft = (sw - vw) / 2;
-        readerViewport.scrollTop = (sh - vh) / 2;
-      });
+      // Double rAF to ensure layout is complete before centering
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        readerViewport.scrollLeft = (readerViewport.scrollWidth - readerViewport.clientWidth) / 2;
+        readerViewport.scrollTop = (readerViewport.scrollHeight - readerViewport.clientHeight) / 2;
+      }));
     }
   }
 
@@ -446,10 +442,10 @@
     conceptZoom.textContent = isConceptZoomed ? '⊖' : '⊕';
 
     if (isConceptZoomed) {
-      requestAnimationFrame(() => {
+      requestAnimationFrame(() => requestAnimationFrame(() => {
         conceptViewport.scrollLeft = (conceptViewport.scrollWidth - conceptViewport.clientWidth) / 2;
         conceptViewport.scrollTop = (conceptViewport.scrollHeight - conceptViewport.clientHeight) / 2;
-      });
+      }));
     }
   }
 
@@ -584,10 +580,12 @@
       if (e.key === 'Escape') {
         closeReader();
       } else if (readerContent.classList.contains('is-active')) {
-        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
-          goToPrevPage();
-        } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D' || e.key === ' ') {
+        if (e.key === ' ') {
           e.preventDefault();
+          toggleZoom();
+        } else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+          goToPrevPage();
+        } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
           goToNextPage();
         }
       } else if (readerCover.classList.contains('is-active')) {
@@ -604,10 +602,12 @@
     if (conceptDialog?.open) {
       if (e.key === 'Escape') {
         closeConceptArt();
+      } else if (e.key === ' ') {
+        e.preventDefault();
+        toggleConceptZoom();
       } else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
         prevConceptArt();
-      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D' || e.key === ' ') {
-        e.preventDefault();
+      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
         nextConceptArt();
       }
     }
