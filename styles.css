@@ -61,6 +61,15 @@ body {
   font-weight: 500;
 }
 
+.topbar-social {
+  color: var(--muted);
+  transition: color .2s ease;
+}
+
+.topbar-social:hover {
+  color: var(--ink);
+}
+
 /* ============================================
    VIEWS
    ============================================ */
